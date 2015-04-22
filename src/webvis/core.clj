@@ -142,7 +142,6 @@
 
       (not (blacklisted? blacklist url))
       (do
-        (println url (blacklisted? blacklist url))
         (log/info "Crawling" url)
         (try
           (-> (extract-links url body blacklist)
