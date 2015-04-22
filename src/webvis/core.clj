@@ -142,6 +142,7 @@
 
       (not (blacklisted? blacklist url))
       (do
+        (println url (blacklisted? blacklist url))
         (log/info "Crawling" url)
         (try
           (-> (extract-links url body blacklist)
@@ -218,16 +219,16 @@
 
 
 (def cli-opts
-  [["-d" "--depth" "Maximum depth to search. A depth of -1 will continue indefinately. Defaults to -1."
+  [["-d" "--depth DEPTH" "Maximum depth to search. A depth of -1 will continue indefinately. Defaults to -1."
     :default -1
     :parse-fn #(Integer/parseInt %)]
-   ["-b" "--blacklist" "Domains to avoid."
+   ["-b" "--blacklist BLACKLIST" "Domains to avoid."
     :parse-fn #(str/split % #"\s+")]
-   ["-w" "--workers" "Number of workers. Defaults to 1."
+   ["-w" "--workers COUNT" "Number of workers. Defaults to 1."
     :default 1
     :parse-fn #(Integer/parseInt %)
     :validate [#(<= 1 %) "Must have at least 1 worker."]]
-   ["-c" "--concurrency" "The maximum number of concurrent http requests. Defaults to 2."
+   ["-c" "--concurrency NUMBER" "The maximum number of concurrent http requests. Defaults to 2."
     :default 2
     :parse-fn #(Integer/parseInt %)
     :validate [#(<= 1 %) "Must allow at least 1 request."]]
@@ -237,9 +238,13 @@
 (defn -main [& args]
   (let [{:keys [arguments options summary errors]}
         (parse-opts args cli-opts)]
-    (if (:help options)
+    (cond
+      (:help options)
       (println summary)
+
+      (url/valid? (first args))
       (let [{:keys [depth workers concurrency blacklist]} options
             sp (create-spider concurrency blacklist)]
         (default-display!)
-        (build-web-blocking sp (first args) workers depth)))))
+        (build-web-blocking sp (first args) workers depth))
+      :else (println "Enter a valid URL."))))
