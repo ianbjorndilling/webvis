@@ -2,6 +2,12 @@
 
 A visualy stimulating web crawler. Displays a live updating graph of all domains visited.
 
+## How to Build
+
+Requires [leiningen](http://leiningen.org/).
+
+Run `lein uberjar` or `lein bin`
+
 ## Usage
 
 ### CLI
